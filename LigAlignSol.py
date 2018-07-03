@@ -16,9 +16,11 @@ class Geometry:
     """
     def __init__(self,pdbfile,oxygen):
         self.pdbfile = pdbfile
-        self.oxygen = map(float,oxygen.split())
+        if type(oxygen) == str: oxygen = oxygen.split()
+        self.oxygen = map(float,oxygen)
         self.pdb_coords = []
-    def test(self, outfile):
+        self.distance = lambda a,b: sum([(a[i] - b[i])**2 for i in range(len(a))]) ** 0.5
+    def runscript(self, outfile):
         self.pdb_Read()
         self.calculate_COG()
         self.write_PDB(outfile)
@@ -53,4 +55,17 @@ class Geometry:
                     if lines.startswith("ATOM"):
                         output.write(lines[:26]+'   {:8.3f}{:8.3f}{:8.3f}{:6.2f}{:6.2f}\n'.format(new_x[counter], new_y[counter],new_z[counter], 0.00, 0.00))
                         counter += 1
-        
+    
+
+
+
+import sys
+#python LigAlignSol.py ACX.pdb 94.935  50.098  25.530 protein.pdb output.pdb
+a = sys.argv
+pdb = a[1]
+protein = a[-2]
+xyz = a[2:5]
+output = a[-1]
+query = Geometry(pdb, xyz)
+query.runscript(output)
+#print query.distance([1,1,1],[0,0,0])
