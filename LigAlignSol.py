@@ -20,10 +20,12 @@ class Geometry:
         self.oxygen = map(float,oxygen)
         self.pdb_coords = []
         self.distance = lambda a,b: sum([(a[i] - b[i])**2 for i in range(len(a))]) ** 0.5
+        self.savedistance = {}
     def runscript(self, outfile):
         self.pdb_Read()
         self.calculate_COG()
         self.write_PDB(outfile)
+        
     def pdb_Read(self):
         with open(self.pdbfile,"r") as reader:
             for lines in reader:
@@ -56,16 +58,29 @@ class Geometry:
                         output.write(lines[:26]+'   {:8.3f}{:8.3f}{:8.3f}{:6.2f}{:6.2f}\n'.format(new_x[counter], new_y[counter],new_z[counter], 0.00, 0.00))
                         counter += 1
     
+    def nearest_atom(self, coordinate,protein):
+        self.coordinate = map(float,coordinate)
+        distance_list = []
+        with open(protein) as pp:
+            for lines in pp:
+                if lines.startswith("ATOM"):
+                    linesZ = map(float,lines.split()[5:8])
+                    name = "_".join(lines.split()[1:5])
+                    self.savedistance[name] = self.distance(linesZ,self.coordinate)
+        rr = min(self.savedistance, key=self.savedistance.get)
+        return rr, self.savedistance[rr]
 
 
 
 import sys
-#python LigAlignSol.py ACX.pdb 94.935  50.098  25.530 protein.pdb output.pdb
+#python LigAlignSol.py ACX.pdb 94.935  50.098  25.530 74.398  49.079  36.679 protein.pdb output.pdb
 a = sys.argv
 pdb = a[1]
 protein = a[-2]
 xyz = a[2:5]
+pxyz = a[5:8]
 output = a[-1]
 query = Geometry(pdb, xyz)
 query.runscript(output)
+print query.nearest_atom(pxyz,protein)
 #print query.distance([1,1,1],[0,0,0])
