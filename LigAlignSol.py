@@ -13,6 +13,8 @@ class Geometry:
     Method: 1. Read ligand pdb file
             2. Center Of Geometry(C.O.G) of ligand pdb file calculated
             3. Write superimposed ligand output pdb file as output.pdb 
+    Formula:
+    {X,Y,Z} = (CurrentCoords + NewCoordsFromSI) - OldCoords
     """
     def __init__(self,pdbfile,oxygen):
         self.pdbfile = pdbfile
